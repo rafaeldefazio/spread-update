@@ -5,6 +5,7 @@ load_dotenv()
 
 SPREAD_ID = os.getenv("SPREAD_ID")
 CRED_PATH = os.getenv("CRED_PATH")
+LOG_PATH = os.getenv("LOG_PATH")
 
 MONGO_URL = os.getenv("MONGO_URL")
 MONGO_PORT = os.getenv("MONGO_PORT")

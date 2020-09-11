@@ -1,9 +1,10 @@
 import logging
 import sys
 from logging.handlers import TimedRotatingFileHandler
+import settings
 
 FORMATTER = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-LOG_FILE = "picovid.log"
+LOG_FILE = settings.LOG_PATH
 
 def get_console_handler():
    console_handler = logging.StreamHandler(sys.stdout)
