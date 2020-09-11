@@ -31,3 +31,7 @@ A cada hora (ou seja, quando os minutos estiverem zerados), o script `main.py` �
 - `MAILGUN_BASEURL`: Base URL fornecido pelo Mailgun
 - `MAINGUN_API`: API Key fornecida pelo Mailgun
 - `MAINGUN_DOMAIN`: Domínio utilizado para envio de emails (from)
+
+
+# Observações
+- lembre-se de compartilhar a planilha com Conta de Serviço, com o papel de Editor
