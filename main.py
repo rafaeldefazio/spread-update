@@ -38,7 +38,7 @@ for P in PAGINAS:
 
     # carrega nome e define coleção do BD
     CITYNAME = P.__dict__['_properties']['title']
-    collection = connectmongo.banco[CITYNAME]
+    collection = connectmongo.banco['atualizacao']
 
     # recupera dados
     DATA = P.get_all_values()
@@ -87,6 +87,11 @@ for P in PAGINAS:
 
 
 
+    df['cityName'] = [str(i).lower() for i in df['cityName']]
+    df['state'] = [str(i).lower() for i in df['state']]
+
+
+
     # calcula diferenças e transformar em inteiro
     diff_calc = pd.DataFrame.copy(df)
 
@@ -119,7 +124,7 @@ for P in PAGINAS:
 
 
         if C not in NOT_DIFF:
-            newCol = 'today'+C.capitalize()
+            newCol = 'today' + C[0].upper() + C[1:]
             diff_calc[newCol] = diff_calc[C].diff()
 
 
@@ -140,22 +145,21 @@ for P in PAGINAS:
     df['processed'] = df['processed'].replace('FALSE', 'TRUE')
 
 
-    # tenta calcular ativos
-    try:
-
-        temp_df['totalActive'] = temp_df['totalConfirmed'].astype(int) - temp_df['totalDeath'].astype(int)  - temp_df['totalCured'].astype(int)
-
-    except:
-        msg = f"{CITYNAME} - houve erro ao calcular casos ativos. Verifique se as informações estão corretas."
-        logger.warning(msg)
-
-        logger.debug(f"{CITYNAME} - enviando e-mail - {send_warning(msg)}")
-
-        msg = f"{CITYNAME} - Saindo."
-        logger.warning(msg)
-
-        continue
-
+    # # tenta calcular ativos
+    # try:
+    #
+    #     temp_df['totalActive'] = temp_df['totalConfirmed'].astype(int) - temp_df['totalDeath'].astype(int)  - temp_df['totalCured'].astype(int)
+    #
+    # except:
+    #     msg = f"{CITYNAME} - houve erro ao calcular casos ativos. Verifique se as informações estão corretas."
+    #     logger.warning(msg)
+    #
+    #     logger.debug(f"{CITYNAME} - enviando e-mail - {send_warning(msg)}")
+    #
+    #     msg = f"{CITYNAME} - Saindo."
+    #     logger.warning(msg)
+    #
+    #     continue
 
 
     try:
