@@ -37,8 +37,16 @@ REGEX_FALSE = r'^=IF\(\$A.*<>\"\";false;""\)$'
 for P in PAGINAS:
 
     # carrega nome e define coleção do BD
-    CITYNAME = P.__dict__['_properties']['title']
+    CITYNAME = str(P.__dict__['_properties']['title'])
     collection = connectmongo.banco['atualizacao']
+
+
+    # planilhas marcadas para não processamento
+    if CITYNAME.startswith('_'):
+        msg = f"{CITYNAME} - planilha marcada para não processamento"
+        logger.info(msg)
+        continue
+
 
     # recupera dados
     DATA = P.get_all_values()
@@ -60,16 +68,30 @@ for P in PAGINAS:
     df = pd.DataFrame(DATA[1:], columns=DATA[0])
 
 
+
+
     # verifica se proxima data é maior (compara 2 últimas)
     if df.shape[0] > 1:
-        msg = f"{CITYNAME} - tem mais que uma linha. Conferir data."
+        msg = f"{CITYNAME} - tem mais que uma linha."
         logger.debug(msg)
 
         checkDate = df.tail(2)
 
         d1, d2 = list(checkDate['date'])
 
-        newD1, newD2 = time.strptime(d1, '%Y-%m-%d'), time.strptime(d2, '%Y-%m-%d')
+
+        try:
+            newD1, newD2 = time.strptime(d1, '%Y-%m-%d'), time.strptime(d2, '%Y-%m-%d')
+        except:
+            msg = f"{CITYNAME} - houve erro ao processar datas {d1} e {d2}. Verifique se o formato de ambas é %Y-%m-%d."
+            logger.warning(msg)
+
+            logger.debug(f"{CITYNAME} - enviando e-mail - {send_warning(msg)}")
+
+            msg = f"{CITYNAME} - Saindo."
+            logger.warning(msg)
+
+            continue
 
         if newD2 > newD1:
             msg = f"{CITYNAME} - Data na última linha maior que da penúltima linha ({d2} > {d1})."
@@ -178,6 +200,8 @@ for P in PAGINAS:
 
         continue
 
+
+    # transforma DataFrame em Dict
     toInsert = temp_df.to_dict(orient='records')
 
 
@@ -193,6 +217,7 @@ for P in PAGINAS:
         logger.info(f"{CITYNAME} - {len(toInsert)} entrada(s) foram inserida(s) no BD")
 
 
+    # grava no banco
     df = df.fillna(0)
     P.update([df.columns.values.tolist()] + df.values.tolist(),  value_input_option='USER_ENTERED')
 
